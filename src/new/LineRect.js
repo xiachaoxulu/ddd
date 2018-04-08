@@ -1,31 +1,152 @@
 // 线框
-import Shape from './Shape'
-import ControlRect from './ControlRect'
+import Shape from './Shape';
+import ControlRect from './ControlRect';
 export default class LineRect extends Shape {
-    constructor(x, y, w, h) {
-        super(x, y, w, h)
-        let controlW = 6, controlH = 6
-        // 8个控制点
-        // 1-1
-        this.children.push(new ControlRect(-controlW / 2, - controlH / 2, controlW, controlH))
-        // 1-2
-        this.children.push(new ControlRect(() => { return (this.renderOptions.w / 2 - controlW / 2) }, -controlH / 2, controlW, controlH))
-        // 1-3
-        this.children.push(new ControlRect(() => { return (this.renderOptions.w - controlW / 2) }, -controlH / 2, controlW, controlH))
-        // 2-1
-        this.children.push(new ControlRect(-controlW / 2, () => { return (this.renderOptions.h / 2 - controlH / 2) }, controlW, controlH))
-        // 2-2
-        this.children.push(new ControlRect(() => { return (this.renderOptions.w - controlW / 2) }, () => { return (this.renderOptions.h / 2 - controlH / 2) }, controlW, controlH))
-        // 3-1
-        this.children.push(new ControlRect(-controlW / 2, () => { return (this.renderOptions.h - controlH / 2) }, controlW, controlH))
-        // 3-2
-        this.children.push(new ControlRect(() => { return (this.renderOptions.w / 2 - controlW / 2) }, () => { return (this.renderOptions.h - controlH / 2) }, controlW, controlH))
-        // 3-2
-        this.children.push(new ControlRect(() => { return (this.renderOptions.w - controlW / 2) }, () => { return (this.renderOptions.h - controlH / 2) }, controlW, controlH))
-        this.children.forEach((item) => {
-            item.offsetParent = this
-            item.visible = false
-        })
-
-    }
+  constructor(x, y, w, h, ctx) {
+    super(x, y, w, h, ctx);
+    this.reigsterDefaultEvent();
+    // 注册默认事件
+    let controlW = 12,
+      controlH = 12;
+    // 8个控制点
+    // 1-1
+    this.children.push(new ControlRect(-controlW / 2, -controlH / 2, controlW, controlH, ctx));
+    // 1-2
+    this.children.push(
+      new ControlRect(
+        () => {
+          return this.renderOptions.w / 2 - controlW / 2;
+        },
+        -controlH / 2,
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    // 1-3
+    this.children.push(
+      new ControlRect(
+        () => {
+          return this.renderOptions.w - controlW / 2;
+        },
+        -controlH / 2,
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    // 2-1
+    this.children.push(
+      new ControlRect(
+        -controlW / 2,
+        () => {
+          return this.renderOptions.h / 2 - controlH / 2;
+        },
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    // 2-2
+    this.children.push(
+      new ControlRect(
+        () => {
+          return this.renderOptions.w - controlW / 2;
+        },
+        () => {
+          return this.renderOptions.h / 2 - controlH / 2;
+        },
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    // 3-1
+    this.children.push(
+      new ControlRect(
+        -controlW / 2,
+        () => {
+          return this.renderOptions.h - controlH / 2;
+        },
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    // 3-2
+    this.children.push(
+      new ControlRect(
+        () => {
+          return this.renderOptions.w / 2 - controlW / 2;
+        },
+        () => {
+          return this.renderOptions.h - controlH / 2;
+        },
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    // 3-2
+    this.children.push(
+      new ControlRect(
+        () => {
+          return this.renderOptions.w - controlW / 2;
+        },
+        () => {
+          return this.renderOptions.h - controlH / 2;
+        },
+        controlW,
+        controlH,
+        ctx
+      )
+    );
+    this.children.forEach((item, index) => {
+      item.offsetParent = this;
+      // item.visible = false;
+      let cursor;
+      switch (index) {
+        case 0:
+          cursor = 'nw-resize';
+          break;
+        case 1:
+          cursor = 'n-resize';
+          break;
+        case 2:
+          cursor = 'ne-resize';
+          break;
+        case 3:
+          cursor = 'w-resize';
+          break;
+        case 4:
+          cursor = 'e-resize';
+          break;
+        case 5:
+          cursor = 'sw-resize';
+          break;
+        case 6:
+          cursor = 's-resize';
+          break;
+        case 7:
+          cursor = 'se-resize';
+          break;
+        default:
+          break;
+      }
+      item.addEventListener('mouseover', () => {
+        this.ctx.canvas.style.cursor = cursor;
+      });
+      item.addEventListener('mouseout', () => {
+        this.ctx.canvas.style.cursor = 'default';
+      });
+    });
+  }
+  reigsterDefaultEvent() {
+    this.addEventListener('mouseover', () => {
+      this.ctx.canvas.style.cursor = 'move';
+    });
+    this.addEventListener('mouseout', () => {
+      this.ctx.canvas.style.cursor = 'default';
+    });
+  }
 }
