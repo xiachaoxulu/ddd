@@ -39,6 +39,8 @@ export default class Shape {
     return {
       startX: startX,
       startY: startY,
+      width: this.renderOptions.w,
+      height: this.renderOptions.h,
       endX: startX + this.renderOptions.w,
       endY: startY + this.renderOptions.h
     };

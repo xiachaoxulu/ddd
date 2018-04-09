@@ -14,6 +14,21 @@ export default class Document {
     this.dom.push(lineRect);
     return lineRect;
   }
+  deleteNode(id) {
+    let find = arr => {
+      for (let index = 0; index < arr.length; index++) {
+        const element = arr[index];
+        if (element.id === id) {
+          arr.splice(index, 1);
+        } else {
+          if (element.children.length > 0) {
+            find(element.children);
+          }
+        }
+      }
+    };
+    find(this.dom);
+  }
   // 通过NodeId 获取node
   getNodeById(id) {
     let find = arr => {

@@ -6,19 +6,22 @@ export default class LineRect extends Shape {
     super(x, y, w, h, ctx);
     this.reigsterDefaultEvent();
     // 注册默认事件
-    let controlW = 12,
-      controlH = 12;
+
+    // 控制块尺寸
+    this.controlW = 20;
+    this.controlH = 20;
     // 8个控制点
     // 1-1
-    this.children.push(new ControlRect(-controlW / 2, -controlH / 2, controlW, controlH, ctx));
+    this.children.push(new ControlRect(-this.controlW / 2, -this.controlH / 2, this.controlW, this.controlH, ctx));
     // 1-2
     this.children.push(
       new ControlRect(
         () => {
-          return this.renderOptions.w / 2 - controlW / 2;
-        }, -controlH / 2,
-        controlW,
-        controlH,
+          return this.renderOptions.w / 2 - this.controlW / 2;
+        },
+        -this.controlH / 2,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
@@ -26,21 +29,23 @@ export default class LineRect extends Shape {
     this.children.push(
       new ControlRect(
         () => {
-          return this.renderOptions.w - controlW / 2;
-        }, -controlH / 2,
-        controlW,
-        controlH,
+          return this.renderOptions.w - this.controlW / 2;
+        },
+        -this.controlH / 2,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
     // 2-1
     this.children.push(
-      new ControlRect(-controlW / 2,
+      new ControlRect(
+        -this.controlW / 2,
         () => {
-          return this.renderOptions.h / 2 - controlH / 2;
+          return this.renderOptions.h / 2 - this.controlH / 2;
         },
-        controlW,
-        controlH,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
@@ -48,24 +53,25 @@ export default class LineRect extends Shape {
     this.children.push(
       new ControlRect(
         () => {
-          return this.renderOptions.w - controlW / 2;
+          return this.renderOptions.w - this.controlW / 2;
         },
         () => {
-          return this.renderOptions.h / 2 - controlH / 2;
+          return this.renderOptions.h / 2 - this.controlH / 2;
         },
-        controlW,
-        controlH,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
     // 3-1
     this.children.push(
-      new ControlRect(-controlW / 2,
+      new ControlRect(
+        -this.controlW / 2,
         () => {
-          return this.renderOptions.h - controlH / 2;
+          return this.renderOptions.h - this.controlH / 2;
         },
-        controlW,
-        controlH,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
@@ -73,13 +79,13 @@ export default class LineRect extends Shape {
     this.children.push(
       new ControlRect(
         () => {
-          return this.renderOptions.w / 2 - controlW / 2;
+          return this.renderOptions.w / 2 - this.controlW / 2;
         },
         () => {
-          return this.renderOptions.h - controlH / 2;
+          return this.renderOptions.h - this.controlH / 2;
         },
-        controlW,
-        controlH,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
@@ -87,13 +93,13 @@ export default class LineRect extends Shape {
     this.children.push(
       new ControlRect(
         () => {
-          return this.renderOptions.w - controlW / 2;
+          return this.renderOptions.w - this.controlW / 2;
         },
         () => {
-          return this.renderOptions.h - controlH / 2;
+          return this.renderOptions.h - this.controlH / 2;
         },
-        controlW,
-        controlH,
+        this.controlW,
+        this.controlH,
         ctx
       )
     );
@@ -135,60 +141,58 @@ export default class LineRect extends Shape {
       item.addEventListener('mouseout', () => {
         this.ctx.canvas.style.cursor = 'default';
       });
-      item.addEventListener('resize', (event) => {
-        event.direction = cursor
-        event.srcNode = this
-        this.emitEvent('resize', event)
-      })
+      item.addEventListener('resize', event => {
+        event.direction = cursor;
+        event.srcNode = this;
+        this.emitEvent('resize', event);
+      });
     });
   }
+
   clearSelectStatu() {
     if (this.isSelect) {
-      this.isSelect = false
+      this.isSelect = false;
       this.children.forEach(item => {
-        item.visible = false
-      })
-      this.emitEvent('reDraw')
+        item.visible = false;
+      });
+      this.emitEvent('reDraw');
     }
   }
   reigsterDefaultEvent() {
-    this.isSelect = false
-    this.isdraging = false
+    this.isSelect = false;
+    this.isdraging = false;
     this.addEventListener('mouseover', () => {
       if (this.isSelect) {
         this.ctx.canvas.style.cursor = 'move';
       } else {
         this.ctx.canvas.style.cursor = 'pointer';
       }
-
     });
     this.addEventListener('mousedown', () => {
       if (!this.isSelect) {
         this.ctx.canvas.style.cursor = 'move';
-        this.isSelect = true
+        this.isSelect = true;
         this.children.forEach(item => {
-          item.visible = true
-        })
-        this.emitEvent('reDraw')
-        this.emitEvent('select', this)
+          item.visible = true;
+        });
+        this.emitEvent('reDraw');
+        this.emitEvent('select', this);
       } else {
-        this.isdraging = true
+        this.isdraging = true;
       }
     });
     this.addEventListener('mouseout', () => {
-      this.isdraging = false
+      this.isdraging = false;
       this.ctx.canvas.style.cursor = 'default';
     });
     this.addEventListener('mouseup', () => {
-      this.isdraging = false
+      this.isdraging = false;
     });
-    this.addEventListener('mousemove', (event) => {
-      console.log(22, this.isdraging)
+    this.addEventListener('mousemove', event => {
       if (this.isdraging) {
-        event.srcNode = this
-        this.emitEvent('drag', event)
+        event.srcNode = this;
+        this.emitEvent('drag', event);
       }
     });
-
   }
 }
