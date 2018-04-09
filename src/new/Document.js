@@ -1,12 +1,28 @@
 // 管理所有canvas 绘图节点
 
 import LineRect from './LineRect';
-
+import Matrix2d from './Matrix2d';
 export default class Document {
   constructor() {
     this.dom = [];
     this.__lastMouseEventNode = null;
+    this.matrix = {
+      a: 1,
+      b: 0,
+      c: 0,
+      d: 1,
+      e: 0,
+      f: 0
+    };
     // 当前正在
+  }
+  setMatrix(matrix) {
+    this.matrix.a = matrix.a;
+    this.matrix.b = matrix.b;
+    this.matrix.c = matrix.c;
+    this.matrix.d = matrix.d;
+    this.matrix.e = matrix.e;
+    this.matrix.f = matrix.f;
   }
   // 创建一个节点
   createShape(x, y, w, h, ctx) {
@@ -68,7 +84,12 @@ export default class Document {
         let offsetX = event.offsetX;
         let offsetY = event.offsetY;
         let rect = node.getBoundingClientRect();
-
+        let startPoint = Matrix2d.transformPoint(this.matrix, { x: rect.startX, y: rect.startY });
+        let endPoint = Matrix2d.transformPoint(this.matrix, { x: rect.endX, y: rect.endY });
+        rect.startX = startPoint.x;
+        rect.startY = startPoint.y;
+        rect.endX = endPoint.x;
+        rect.endY = endPoint.y;
         if (offsetX >= rect.startX && offsetX <= rect.endX && offsetY >= rect.startY && offsetY <= rect.endY) {
           lastNode = node;
         }

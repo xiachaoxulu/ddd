@@ -8,8 +8,8 @@ export default class LineRect extends Shape {
     // 注册默认事件
 
     // 控制块尺寸
-    this.controlW = 20;
-    this.controlH = 20;
+    this.controlW = 12;
+    this.controlH = 12;
     // 8个控制点
     // 1-1
     this.children.push(new ControlRect(-this.controlW / 2, -this.controlH / 2, this.controlW, this.controlH, ctx));
