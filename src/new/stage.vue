@@ -8,12 +8,12 @@
        <button  @click="changeMode(2)">选择</button>
        <button  @click="deleteNode">删除</button>
        <button  @click="translate">背景平移</button>
-
+       <button  @click="toString">tostring</button>
     </div>
   </div>
 </template>
 <script>
-import Event from './event';
+import Event from './Event';
 import Document from './Document';
 import Matrix2d from './Matrix2d';
 export default {
@@ -21,12 +21,12 @@ export default {
         return {
             mode: 1, // 1 绘制 2选择,
             globalMatrix: {
-                a: 2,
+                a: 1,
                 b: 0,
                 c: 0,
-                d: 2,
-                e: -120,
-                f: -120
+                d: 1,
+                e: 0,
+                f: 0
             },
             isdrawing: false
         };
@@ -41,6 +41,9 @@ export default {
         }
     },
     methods: {
+        toString() {
+            console.log(this.document.toString());
+        },
         translate() {
             this.globalMatrix.a = 2;
             this.globalMatrix.d = 2;
@@ -52,9 +55,8 @@ export default {
             this.testctx.setTransform(this.globalMatrix.a, 0, 0, this.globalMatrix.d, this.globalMatrix.e, this.globalMatrix.f);
             this.testctx.drawImage(this.img, 0, 0);
 
-            this.document.setMatrix(this.globalMatrix);
+            // this.document.setMatrix(this.globalMatrix);
             this.update();
-            console.log(this.document.dom);
         },
         deleteNode() {
             if (this.currentSelectNode) {
@@ -66,32 +68,36 @@ export default {
             this.mode = val;
         },
         onEvent(event) {
-            switch (event.type) {
+            let selfEvent = {};
+            selfEvent.type = event.type;
+            let inventPoint = Matrix2d.invertTransformPoint(this.globalMatrix, { x: event.offsetX, y: event.offsetY });
+            selfEvent.offsetX = inventPoint.x;
+            selfEvent.offsetY = inventPoint.y;
+            switch (selfEvent.type) {
                 case 'mousedown':
-                    this.onmousedown(event);
+                    this.onmousedown(selfEvent);
                     break;
                 case 'mouseover':
-                    this.onmouseover(event);
+                    this.onmouseover(selfEvent);
                     break;
                 case 'mouseup':
-                    this.onmouseup(event);
+                    this.onmouseup(selfEvent);
                     break;
                 case 'mouseout':
-                    this.onmouseout(event);
+                    this.onmouseout(selfEvent);
                     break;
                 case 'mousemove':
-                    this.onmousemove(event);
+                    this.onmousemove(selfEvent);
                     break;
             }
             if (this.mode !== 1) {
-                this.document.dispatchEvent(event);
+                this.document.dispatchEvent(selfEvent);
             }
         },
         onmousemove(event) {
             if (this.isdrawing) {
-                let inventPoint = Matrix2d.invertTransformPoint(this.globalMatrix, { x: event.offsetX, y: event.offsetY });
-                let lastX = inventPoint.x;
-                let lastY = inventPoint.y;
+                let lastX = event.offsetX;
+                let lastY = event.offsetY;
                 let firstX = this.firstPoint.x;
                 let firstY = this.firstPoint.y;
                 // 第二点落在以第一点为原点的四个象棋时要有不同的处理,即: 谁小取谁的值 作为起始点
@@ -111,7 +117,6 @@ export default {
                     this.currentDom.renderOptions.w = w < 20 ? 20 : w;
                     this.currentDom.renderOptions.h = h < 20 ? 20 : h;
                 }
-                console.log(this.currentDom.renderOptions, this.currentDom.getBoundingClientRect());
                 this.update();
                 this.firstPoint = null;
                 this.isdrawing = false;
@@ -121,13 +126,12 @@ export default {
         onmousedown(event) {
             if (this.mode === 1) {
                 this.isdrawing = true;
-                let inventPoint = Matrix2d.invertTransformPoint(this.globalMatrix, { x: event.offsetX, y: event.offsetY });
-                this.firstPoint = inventPoint;
-                this.currentDom = this.document.createShape(inventPoint.x, inventPoint.y, 0, 0, this.ctx);
-                this.currentDom.addEventListener('resize', this.ShapeResize);
-                this.currentDom.addEventListener('drag', this.ShapeDrag);
-                this.currentDom.addEventListener('select', this.ShapeSelect);
-                this.currentDom.addEventListener('reDraw', this.reDraw);
+                this.firstPoint = {
+                    x: event.offsetX,
+                    y: event.offsetY
+                };
+                this.currentDom = this.document.createShape(event.offsetX, event.offsetY, 0, 0);
+                this.initNodeEvent(this.currentDom);
             } else {
                 // 点击空白处清除当前选择;
                 if (this.currentSelectNode) {
@@ -138,12 +142,6 @@ export default {
                     rect.startY -= dot;
                     rect.endX += dot;
                     rect.endY += dot;
-                    let startPoint = Matrix2d.transformPoint(this.globalMatrix, { x: rect.startX, y: rect.startY });
-                    let endPoint = Matrix2d.transformPoint(this.globalMatrix, { x: rect.endX, y: rect.endY });
-                    rect.startX = startPoint.x;
-                    rect.startY = startPoint.y;
-                    rect.endX = endPoint.x;
-                    rect.endY = endPoint.y;
                     if (event.offsetX >= rect.startX && event.offsetX <= rect.endX && event.offsetY >= rect.startY && event.offsetY <= rect.endY) {
                         return;
                     } else {
@@ -155,6 +153,12 @@ export default {
         },
         onmouseout() {},
         onmouseover() {},
+        initNodeEvent(node) {
+            node.addEventListener('resize', this.ShapeResize);
+            node.addEventListener('drag', this.ShapeDrag);
+            node.addEventListener('select', this.ShapeSelect);
+            node.addEventListener('reDraw', this.reDraw);
+        },
         reDraw() {
             this.update();
         },
@@ -169,16 +173,13 @@ export default {
             window.getSelection().removeAllRanges();
             let node = event.srcNode;
             let rect = node.getBoundingClientRect();
-            let inventPoint = Matrix2d.invertTransformPoint(this.globalMatrix, { x: event.offsetX, y: event.offsetY });
-            let x = inventPoint.x;
-            let y = inventPoint.y;
             let center = {
                 x: rect.startX + rect.width / 2,
                 y: rect.startY + rect.height / 2
             };
             let translate = {
-                x: x - center.x,
-                y: y - center.y
+                x: event.offsetX - center.x,
+                y: event.offsetY - center.y
             };
             node.renderOptions.x += translate.x;
             node.renderOptions.y += translate.y;
@@ -189,9 +190,8 @@ export default {
             window.getSelection().removeAllRanges();
             let node = event.srcNode;
             let rect = node.getBoundingClientRect();
-            let inventPoint = Matrix2d.invertTransformPoint(this.globalMatrix, { x: event.offsetX, y: event.offsetY });
-            let x = inventPoint.x;
-            let y = inventPoint.y;
+            let x = event.offsetX;
+            let y = event.offsetY;
             switch (event.direction) {
                 case 'nw-resize':
                     node.renderOptions.w += -(x - rect.startX);
@@ -273,9 +273,16 @@ export default {
         this.ctx = this.canvas.getContext('2d');
         this.event = new Event(this.canvas);
         this.event.onEvent('all', this.onEvent);
-        this.document = new Document();
-        this.document.setMatrix(this.globalMatrix);
+        this.document = new Document(this.ctx);
 
+        let testJson = JSON.parse(
+            '[{"id":"3b308e4fb35a021e","client":{"x":74,"y":62,"w":102,"h":74},"tag":{}},{"id":"baf261663ee90bce","client":{"x":227,"y":51,"w":74,"h":76},"tag":{}}]'
+        );
+        testJson.forEach(item => {
+            let node = this.document.createShape(item.client.x, item.client.y, item.client.w, item.client.h, item.tag);
+            this.initNodeEvent(node);
+        });
+        this.update();
         // test test
         let test = this.$el.querySelector('.bg');
         test.width = '800';

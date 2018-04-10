@@ -3,7 +3,7 @@
 import Util from './Util';
 
 export default class Shape {
-  constructor(x, y, w, h, ctx) {
+  constructor(x, y, w, h, tag, ctx) {
     this.ctx = ctx;
     this.id = Util.getUuid();
     this.renderOptions = {
@@ -23,7 +23,7 @@ export default class Shape {
     this.children = [];
     this.eventBus = {};
     // 数据仓库
-    this.tag = {};
+    this.tag = tag || {};
     // 当前的事件类型
     this.currentEventType = null;
   }

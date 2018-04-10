@@ -2,8 +2,8 @@
 import Shape from './Shape';
 import ControlRect from './ControlRect';
 export default class LineRect extends Shape {
-  constructor(x, y, w, h, ctx) {
-    super(x, y, w, h, ctx);
+  constructor(x, y, w, h, tag, ctx) {
+    super(x, y, w, h, tag, ctx);
     this.reigsterDefaultEvent();
     // 注册默认事件
 
@@ -12,7 +12,7 @@ export default class LineRect extends Shape {
     this.controlH = 12;
     // 8个控制点
     // 1-1
-    this.children.push(new ControlRect(-this.controlW / 2, -this.controlH / 2, this.controlW, this.controlH, ctx));
+    this.children.push(new ControlRect(-this.controlW / 2, -this.controlH / 2, this.controlW, this.controlH, {}, ctx));
     // 1-2
     this.children.push(
       new ControlRect(
@@ -22,6 +22,7 @@ export default class LineRect extends Shape {
         -this.controlH / 2,
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );
@@ -34,6 +35,7 @@ export default class LineRect extends Shape {
         -this.controlH / 2,
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );
@@ -46,6 +48,7 @@ export default class LineRect extends Shape {
         },
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );
@@ -60,6 +63,7 @@ export default class LineRect extends Shape {
         },
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );
@@ -72,6 +76,7 @@ export default class LineRect extends Shape {
         },
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );
@@ -86,6 +91,7 @@ export default class LineRect extends Shape {
         },
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );
@@ -100,6 +106,7 @@ export default class LineRect extends Shape {
         },
         this.controlW,
         this.controlH,
+        {},
         ctx
       )
     );

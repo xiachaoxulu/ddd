@@ -1,32 +1,15 @@
 // 管理所有canvas 绘图节点
 
 import LineRect from './LineRect';
-import Matrix2d from './Matrix2d';
 export default class Document {
-  constructor() {
+  constructor(ctx) {
     this.dom = [];
+    this.ctx = ctx;
     this.__lastMouseEventNode = null;
-    this.matrix = {
-      a: 1,
-      b: 0,
-      c: 0,
-      d: 1,
-      e: 0,
-      f: 0
-    };
-    // 当前正在
-  }
-  setMatrix(matrix) {
-    this.matrix.a = matrix.a;
-    this.matrix.b = matrix.b;
-    this.matrix.c = matrix.c;
-    this.matrix.d = matrix.d;
-    this.matrix.e = matrix.e;
-    this.matrix.f = matrix.f;
   }
   // 创建一个节点
-  createShape(x, y, w, h, ctx) {
-    let lineRect = new LineRect(x, y, w, h, ctx);
+  createShape(x, y, w, h, tag = {}) {
+    let lineRect = new LineRect(x, y, w, h, tag, this.ctx);
     this.dom.push(lineRect);
     return lineRect;
   }
@@ -36,6 +19,7 @@ export default class Document {
         const element = arr[index];
         if (element.id === id) {
           arr.splice(index, 1);
+          return;
         } else {
           if (element.children.length > 0) {
             find(element.children);
@@ -84,12 +68,6 @@ export default class Document {
         let offsetX = event.offsetX;
         let offsetY = event.offsetY;
         let rect = node.getBoundingClientRect();
-        let startPoint = Matrix2d.transformPoint(this.matrix, { x: rect.startX, y: rect.startY });
-        let endPoint = Matrix2d.transformPoint(this.matrix, { x: rect.endX, y: rect.endY });
-        rect.startX = startPoint.x;
-        rect.startY = startPoint.y;
-        rect.endX = endPoint.x;
-        rect.endY = endPoint.y;
         if (offsetX >= rect.startX && offsetX <= rect.endX && offsetY >= rect.startY && offsetY <= rect.endY) {
           lastNode = node;
         }
@@ -133,5 +111,22 @@ export default class Document {
         node.currentEventType = 'mousemove';
       }
     }
+  }
+
+  toString() {
+    let arr = [];
+    this.dom.forEach(item => {
+      arr.push({
+        id: item.id,
+        client: {
+          x: item.renderOptions.x,
+          y: item.renderOptions.y,
+          w: item.renderOptions.w,
+          h: item.renderOptions.h
+        },
+        tag: item.tag
+      });
+    });
+    return JSON.stringify(arr);
   }
 }

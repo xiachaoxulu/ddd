@@ -2,8 +2,8 @@
 import Shape from './Shape';
 
 export default class ControlRect extends Shape {
-  constructor(x, y, w, h, ctx) {
-    super(x, y, w, h, ctx);
+  constructor(x, y, w, h, tag, ctx) {
+    super(x, y, w, h, tag, ctx);
     this.renderOptions.fillStyle = 'white';
     this.renderOptions.strokeStyle = 'black';
     this.position = 'relative';
